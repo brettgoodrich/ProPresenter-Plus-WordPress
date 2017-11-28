@@ -2,7 +2,29 @@
 /*
 Template Name: ProPresenter File Generator
 */
-header('Content-Disposition: attachment; filename="announcements.pro6"');
+header('Content-Disposition: attachment; filename="Announcements.pro6"');
+
+//
+//
+// INIT
+$user = $_GET['user']; // What computer are we downloading this for?
+if ($user == 'welcomecenter') { // What does this computer display slides publically on?
+  $usecase = 'forTV';
+} else {
+  $usecase = 'forprojector';
+} // This is important because projectors display colors differently than TVs, so I have different settings for them.
+// INIT
+//
+//
+
+//
+//
+// SETTINGS
+$slide_duration = '10'; //in seconds. don't use a decimal
+$slide_background_url = 'file:///Users/'.$user.'/Documents/Sunday%20Graphics/sundayslides-'.$usecase.'-blank-noline.png';
+// SETTINGS
+//
+//
 ?>
 <RVPresentationDocument
   CCLIArtistCredits=""
@@ -11,7 +33,7 @@ header('Content-Disposition: attachment; filename="announcements.pro6"');
   CCLIDisplay="false"
   CCLIPublisher=""
   CCLISongNumber=""
-  CCLISongTitle="announcements 1.0"
+  CCLISongTitle="announcements"
   backgroundColor="0 0 0 0"
   buildNumber=""
   category=""
@@ -25,7 +47,7 @@ header('Content-Disposition: attachment; filename="announcements.pro6"');
   resourcesDirectory=""
   selectedArrangementID=""
   usedCount="0"
-  uuid=""
+  uuid="<?php echo gettimeofday()['usec']; ?>"
   versionNumber="600"
   width="1920">
   <RVTimeline duration="0.000000" loop="false" rvXMLIvarName="timeline" selectedMediaTrackIndex="0" timeOffset="0.000000">
@@ -37,23 +59,20 @@ header('Content-Disposition: attachment; filename="announcements.pro6"');
       <array rvXMLIvarName="slides">
 
 <?php
-
-// SETTINGS
-$slide_duration = '10'; //in seconds. don't use a decimal
-
-// INIT
+//
+//
+// BUILD
 $args = array(
 	'category__in'     => array(1,48),
 	'orderby'          => 'date',
 	'order'            => 'DESC',
-	'include'          => '',
 	'exclude'          => '',
 	'post_type'        => 'post',
+	'numberposts'			 => 99,
 	'post_status'      => 'publish',
-	'suppress_filters' => true
+	'suppress_filters' => false
 );
 $posts_array = get_posts( $args );
-
 foreach ($posts_array as $slide) {
 
   // SETUP (FOR EACH POST)
@@ -61,53 +80,53 @@ foreach ($posts_array as $slide) {
   $is_last = (end($posts_array) == $slide) ? 'true' : 'false' ;
   $uuid_stamp = $slide->ID.'-'.gettimeofday()['usec'];
 
-  // SLIDE TITLE TEXT
+  // SLIDE TITLE TEXT // Don't tab this over, it messes it up
   $toEncode = '{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
-  {\fonttbl\f0\fnil\fcharset0 PlayfairDisplay-Regular;}
-  {\colortbl;\red255\green255\blue255;\red42\green42\blue42;}
-  {\*\expandedcolortbl;;\cspthree\c21580\c21579\c21579;}
-  \pard\slleading40\pardirnatural\partightenfactor0
+{\fonttbl\f0\fnil\fcharset0 PlayfairDisplay-BlackItalic;}
+{\colortbl;\red255\green255\blue255;\red42\green42\blue42;}
+{\*\expandedcolortbl;;\cspthree\c21580\c21579\c21579;}
+\pard\pardirnatural\partightenfactor0
 
-  \f0\fs110 \cf2 \expnd0\expndtw0\kerning0
-  '.wp_strip_all_tags($slide->post_content, true).'}';
+\f0\i\b\fs230 \cf2 \kerning1\expnd4\expndtw20
+'.wp_strip_all_tags($slide->post_title, true).'}';
   $slide_title_text = base64_encode($toEncode);
 
-  // SLIDE CONTENT TEXT
+  // SLIDE CONTENT TEXT // Don't tab this over, it messes it up
   $toEncode = '{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
-  {\fonttbl\f0\fnil\fcharset0 PlayfairDisplay-Regular;}
-  {\colortbl;\red255\green255\blue255;\red42\green42\blue42;}
-  {\*\expandedcolortbl;;\cspthree\c21580\c21579\c21579;}
-  \pard\slleading40\pardirnatural\partightenfactor0
+{\fonttbl\f0\fnil\fcharset0 PlayfairDisplay-Regular;}
+{\colortbl;\red255\green255\blue255;\red42\green42\blue42;}
+{\*\expandedcolortbl;;\cspthree\c21580\c21579\c21579;}
+\pard\slleading40\pardirnatural\partightenfactor0
 
-  \f0\fs110 \cf2 \expnd0\expndtw0\kerning0
-  '.wp_strip_all_tags($slide->post_content, true).'}';
+\f0\fs110 \cf2 \expnd0\expndtw0\kerning0
+'.wp_strip_all_tags($slide->post_content, true).'}';
   $slide_content_text = base64_encode($toEncode);
 
-  // SLIDE GREEN TEXT
+  // SLIDE GREEN TEXT // Don't tab this over, it messes it up
   $toEncode = '{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
-  {\fonttbl\f0\fnil\fcharset0 Montserrat-SemiBold;}
-  {\colortbl;\red255\green255\blue255;\red71\green203\blue114;}
-  {\*\expandedcolortbl;;\cspthree\c46638\c80820\c54649;}
-  \pard\pardirnatural\partightenfactor0
+{\fonttbl\f0\fnil\fcharset0 Montserrat-SemiBold;}
+{\colortbl;\red255\green255\blue255;'.($usecase == 'forprojectors' ? '\red71\green203\blue114' : '\red71\green182\blue114').';}
+{\*\expandedcolortbl;;\cspthree\c46638\c80820\c54649;}
+\pard\pardirnatural\partightenfactor0
 
-  \f0\b\fs88 \cf2 \kerning1\expnd4\expndtw20
-  '.$green_text.'}';
+\f0\b\fs88 \cf2 \kerning1\expnd4\expndtw20
+'.$green_text.'}';
   $slide_green_text = base64_encode($toEncode);
 
-  /* POST OBJECT REFERENCE *
+  /* SHOW OBJECT REFERENCE *
   echo '<pre>';
   print_r($slide);
   echo '</pre><br/><strong>META: </strong>';
   echo get_post_meta($slide->ID, 'propresenter_green_text', true);
   echo '<br/><br/>';
-  /* POST OBJECT REFERENCE END */
+  /* SHOW OBJECT REFERENCE END */
 ?>
-        <RVDisplaySlide UUID="" backgroundColor="0 0 0 1" chordChartPath="" drawingBackgroundColor="false" enabled="true" highlightColor="0 0 0 0" hotKey="" label="" notes="" socialItemCount="1">
+        <RVDisplaySlide UUID="slide-<?php echo $uuid_stamp; ?>" backgroundColor="0 0 0 1" chordChartPath="" drawingBackgroundColor="false" enabled="true" highlightColor="0 0 0 0" hotKey="" label="" notes="" socialItemCount="1">
           <array rvXMLIvarName="cues">
             <RVSlideTimerCue UUID="" actionType="0" delayTime="0.000000" displayName="Go to Next" duration="<?php echo $slide_duration; ?>.000000" enabled="false" loopToBeginning="<?php echo $is_last; ?>" timeStamp="0.000000"></RVSlideTimerCue>
           </array>
           <RVMediaCue
-            UUID=""
+            UUID="content-<?php echo $uuid_stamp; ?>"
             actionType="0"
             alignment="4"
             behavior="2"
@@ -120,7 +139,7 @@ foreach ($posts_array as $slide) {
             tags=""
             timeStamp="0.000000">
             <RVImageElement
-              UUID=""
+              UUID="img-<?php echo $uuid_stamp; ?>"
               bezelRadius="0.000000"
               displayDelay="0.000000"
               displayName="ImageElement"
@@ -142,7 +161,7 @@ foreach ($posts_array as $slide) {
               rvXMLIvarName="element"
               scaleBehavior="0"
               scaleSize="{1, 1}"
-              source="file:///Users/gym-worship/Downloads/sundayslides-blank-noline.png"
+              source="<?php echo $slide_background_url; ?>"
               typeID="0">
               <RVRect3D rvXMLIvarName="position">{0 0 0 0 0}</RVRect3D>
               <shadow rvXMLIvarName="shadow">0.000000|0 0 0 0.3333333432674408|{4, -4}</shadow>
@@ -290,7 +309,12 @@ foreach ($posts_array as $slide) {
               drawingFill="true"
               drawingShadow="false"
               drawingStroke="false"
-              fillColor="0.281698077917099 0.7930265665054321 0.4438668489456177 1"
+              fillColor="<?php
+              if ($usecase == 'forprojector') {
+                echo '0.281698077917099 0.7930265665054321 0.4438668489456177 1';
+              } else {
+                echo '0.2277859002351761 0.6479925513267517 0.3595101833343506 1';
+              } ?>"
               fromTemplate="true"
               locked="false"
               opacity="1.000000"
@@ -308,7 +332,7 @@ foreach ($posts_array as $slide) {
           </array>
         </RVDisplaySlide>
 <?php
-}
+} // END foreach slide
 ?>
       </array>
     </RVSlideGrouping>
