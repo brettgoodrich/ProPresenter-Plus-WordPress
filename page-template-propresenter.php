@@ -25,6 +25,7 @@ $slide_background_url = 'file:///Users/'.$user.'/Documents/Sunday%20Graphics/sun
 // SETTINGS
 //
 //
+
 ?>
 <RVPresentationDocument
   CCLIArtistCredits=""
@@ -62,17 +63,52 @@ $slide_background_url = 'file:///Users/'.$user.'/Documents/Sunday%20Graphics/sun
 //
 //
 // BUILD
-$args = array(
-	'category__in'     => array(1,48),
+$args = array( // What posts do we want to get?
+	'category__in'     => array(1,48), // Posts in category 1 (Bulletin) and 48 (ProPresenter)
 	'orderby'          => 'date',
 	'order'            => 'DESC',
 	'exclude'          => '',
 	'post_type'        => 'post',
-	'numberposts'			 => 99,
-	'post_status'      => 'publish',
+	'numberposts'			 => 99, // Defaults to 5 without this, for some reason
+	'post_status'      => 'publish', // Only get published posts, not drafts or deletes
 	'suppress_filters' => false
 );
 $posts_array = get_posts( $args );
+
+// Some characters get messed up if they aren't escaped how PP likes.
+function escapeSpecial($input) {
+  $input = wp_strip_all_tags($input, true);
+  $input = str_replace(
+    array( // Replace these characters (reading top to bottom)...
+      '•', //SEE KEY BELOW
+      '—',
+      '‘',
+      '’',
+      '“',
+      '”',
+      '&amp;'
+    ),
+    array( // ...with these characters (reading top to bottom).
+      '\\\'95',
+      '\\\'97',
+      '\\\'91',
+      '\\\'92',
+      '\\\'93',
+      '\\\'94',
+      '&'
+    ), $input);
+  return $input;
+}
+/* KEY:
+Bullet • > \'95
+EmDash — > \'97
+Left Apostrophe ‘ > \'91
+Right Apostrophe ’ > \'92
+Left Quote “ > \'93
+Right Quote ” > \'94
+*/
+
+// BEGIN FOREACH LOOP
 foreach ($posts_array as $slide) {
 
   // SETUP (FOR EACH POST)
@@ -88,7 +124,7 @@ foreach ($posts_array as $slide) {
 \pard\pardirnatural\partightenfactor0
 
 \f0\i\b\fs230 \cf2 \kerning1\expnd4\expndtw20
-'.wp_strip_all_tags($slide->post_title, true).'}';
+'.escapeSpecial($slide->post_title).'}';
   $slide_title_text = base64_encode($toEncode);
 
   // SLIDE CONTENT TEXT // Don't tab this over, it messes it up
@@ -99,7 +135,7 @@ foreach ($posts_array as $slide) {
 \pard\slleading40\pardirnatural\partightenfactor0
 
 \f0\fs110 \cf2 \expnd0\expndtw0\kerning0
-'.wp_strip_all_tags($slide->post_content, true).'}';
+'.escapeSpecial($slide->post_content).'}';
   $slide_content_text = base64_encode($toEncode);
 
   // SLIDE GREEN TEXT // Don't tab this over, it messes it up
@@ -110,7 +146,7 @@ foreach ($posts_array as $slide) {
 \pard\pardirnatural\partightenfactor0
 
 \f0\b\fs88 \cf2 \kerning1\expnd4\expndtw20
-'.$green_text.'}';
+'.escapeSpecial($green_text).'}';
   $slide_green_text = base64_encode($toEncode);
 
   /* SHOW OBJECT REFERENCE *
@@ -332,7 +368,7 @@ foreach ($posts_array as $slide) {
           </array>
         </RVDisplaySlide>
 <?php
-} // END foreach slide
+} // END FOREACH LOOP
 ?>
       </array>
     </RVSlideGrouping>
